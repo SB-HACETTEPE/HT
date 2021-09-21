@@ -2,6 +2,13 @@
 An image of the model connected to the microcontroller is shown below;
 ![alt text](https://github.com/SB-HACETTEPE/HT/blob/main/ENC.png?raw=true)
 
+
+
+
+
+
+
+
 As the Microcontroller works as server of a basic html page, there is basic html page code in the head of the "main" file;
 
 MIAN FUNCTIONS:
