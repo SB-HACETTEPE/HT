@@ -63,7 +63,7 @@ void loop() {
    memcpy_P(ether.tcpOffset(), page, sizeof page);
    ether.httpServerReply(sizeof page – 1);
   
-
+   
    HTTPClient http;
     
    // Your Domain name with URL path or IP address with path
