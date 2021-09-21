@@ -1,1 +1,170 @@
-sad
+#include <EtherCard.h>
+#define TFT_CS   A3
+#define TFT_DC   0
+#define TFT_MOSI 8
+#define TFT_CLK  9
+#define TFT_MISO 10
+#define TFT_LED  A2  
+// IP Settings
+#define IP      "192.168.137.120"
+#define GATEWAY "192.168.5.1"
+#define NETMASK "255.255.255.0"
+#define PORT    1900
+ 
+
+==============================================================================
+
+char const webpage[] = "<html>
+<body>
+<h1>Giriş yapmak için lütfen Kullancı adı ve şifreyi girin</h1>
+
+<form action="/action_page.php" method="post" target="_blank">
+  <label for="fname">Username:</label>
+  <input type="text" id="fname" name="fname"><br><br>
+  <label for="lname">Password:</label>
+  <input type="text" id="lname" name="lname"><br><br>
+  <input type="submit" value="Giriş Yap">
+</form>
+
+</body>
+</html>
+"
+
+
+==============================================================================
+void setup() {
+  //Initialize serial and wait for port to open:
+  net.set_network(IP, NETMASK, GATEWAY);
+  net.connect();
+  server.open(&net);
+  server.bind(PORT);
+  server.listen(4);
+  // init GPIOs
+  pinMode(TFT_LED, OUTPUT); // define as output for backlight control
+  // Setup Eathernet module 
+  ethernet.setup(mac, ip, port);
+  // initialize the TFT
+  Serial.println("Init TFT ...");
+  tft.begin();          
+  tft.setRotation(3);   // landscape mode  
+  tft.fillScreen(ILI9341_BLACK);// clear screen 
+
+  tft.setCursor(70,110);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setTextSize(3);
+  digitalWrite(TFT_LED, LOW);    // turn backlight on; 
+  ==================================================
+
+
+
+
+
+ 
+}
+//==================================================
+void loop() {
+   
+   memcpy_P(ether.tcpOffset(), page, sizeof page);
+   ether.httpServerReply(sizeof page – 1);
+  
+
+   HTTPClient http;
+    
+   // Your Domain name with URL path or IP address with path
+   http.begin(client, serverName);
+
+   // Specify content-type header
+   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+   // Data to send with HTTP POST
+   String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&value1=24.25&value2=49.54&value3=1005.14";           
+   // Send HTTP POST request
+   int httpResponseCode = http.POST(httpRequestData);    
+   // If you need an HTTP request with a content type: application/json, use the following:
+   http.addHeader("Content-Type", "application/json");
+   var jobject ={\"succes\":\"1001\",\"tm\":\"1631045596\",\"cno\":\"100000642\"};
+   // Convert JSON to string
+   var JSONString=JSON.stringify(jobject); 
+   // Post to the server
+   int httpResponseCode = http.POST(JSONString);
+   // Write json String to EEPROM
+   EEPROM_string_write( 120, JSONString);
+
+   //========================================
+
+ 	
+
+   // int temp = analogRead(pinTemp);    //Read the rempreture
+
+   // int Humidity = analogRead(pinTemp);    //Read the humidity value
+
+   {"succes":"1001","cno":100000642,"tm":1591120235,"cv":"1.0","yv":"1.1","hp":15,"alarm":{"
+    v0":0,"v1":0}}
+
+
+
+   var h_j_object ={\"succes\":\"1001\",\"tm\":\"1631045596\",\"cv\":\"100000642\", \"yv\":\"1631045596\",\"hp\":\"1631045596\",\"alarm\":\"{"
+   v0":0,"v1":0}\"};(Assumed value, for the sake of the expirement)
+
+   var t_j_object ={\"succes\":\"1021\",\"tm\":\"1631045596\",\"cv\":\"100000642\", \"yv\":\"1631045596\",\"hp\":\"1631045596\",\"alarm\":\"{"
+   v0":0,"v1":0}\"};(Assumed value, for the sake of the expirement)
+
+
+   // Convert JSON to string
+   var t_JSONString=JSON.stringify(t_j_object); 
+   var h_JSONString=JSON.stringify(h_j_object); 
+   void Print_screen(t_JSONString);//print temp application/json header to the screen
+   void Print_screen(h_JSONString);//print humidity application/json header to the screen
+   delay(900000); // This will cause program to pause for 15 mins.
+}
+===============================================================================
+
+
+
+Print To Screen================================================================
+  
+void Print_screen(String str)
+  tft.fillScreen(ILI9341_BLACK);// clear screen
+  tft.setCursor(5,70);
+  tft.setTextColor(ILI9341_RED);
+  tft.print(str);
+  tft.setCursor(190,70);
+  tft.print("Logged in successfully");
+
+
+===============================================================================
+
+
+
+Write To RRPROM Function=======================================================
+#include <EEPROM.h>
+
+void EEPROM_string_write(int Offset, const String &str)
+{
+   EEPROM.write(address, value);
+   byte len = strToWrite.length();
+   EEPROM.write(addrOffset, len);
+   for (int i = 0; i < len; i++)
+   {
+     EEPROM.write(Offset + 1 + i, str[i]);
+   }
+}
+==============================================================================
+
+
+
+Read From EEPROM =============================================================
+
+String readStringFromEEPROM(int Offset)
+{
+  int StrLen = EEPROM.read(Offset);
+  char data[StrLen + 1];
+  for (int i = 0; i < StrLen; i++)
+  {
+    data[i] = EEPROM.read(addrOffset + 1 + i);
+  }
+  data[StrLen] = '\0'
+  return String(data);
+}
+
+
+==============================================================================
