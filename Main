@@ -10,9 +10,7 @@
 #define GATEWAY "192.168.5.1"
 #define NETMASK "255.255.255.0"
 #define PORT    1900
- 
-
-==============================================================================
+//==============================================================================
 
 char const webpage[] = "<html>
 <body>
@@ -29,9 +27,7 @@ char const webpage[] = "<html>
 </body>
 </html>
 "
-
-
-==============================================================================
+//==============================================================================
 void setup() {
   //Initialize serial and wait for port to open:
   net.set_network(IP, NETMASK, GATEWAY);
@@ -53,7 +49,7 @@ void setup() {
   tft.setTextColor(ILI9341_WHITE);
   tft.setTextSize(3);
   digitalWrite(TFT_LED, LOW);    // turn backlight on; 
-  ==================================================
+  //==================================================
 
 
 
@@ -116,11 +112,11 @@ void loop() {
    void Print_screen(h_JSONString);//print humidity application/json header to the screen
    delay(900000); // This will cause program to pause for 15 mins.
 }
-===============================================================================
+//===============================================================================
 
 
 
-Print To Screen================================================================
+//Print To Screen================================================================
   
 void Print_screen(String str)
   tft.fillScreen(ILI9341_BLACK);// clear screen
@@ -131,7 +127,7 @@ void Print_screen(String str)
   tft.print("Logged in successfully");
 
 
-===============================================================================
+//===============================================================================
 
 
 
@@ -148,11 +144,11 @@ void EEPROM_string_write(int Offset, const String &str)
      EEPROM.write(Offset + 1 + i, str[i]);
    }
 }
-==============================================================================
+//==============================================================================
 
 
 
-Read From EEPROM =============================================================
+//Read From EEPROM =============================================================
 
 String readStringFromEEPROM(int Offset)
 {
@@ -166,5 +162,3 @@ String readStringFromEEPROM(int Offset)
   return String(data);
 }
 
-
-==============================================================================
