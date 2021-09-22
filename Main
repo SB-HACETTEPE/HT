@@ -93,16 +93,58 @@ void loop() {
 
    // int Humidity = analogRead(pinTemp);    //Read the humidity value
 
-   {"succes":"1001","cno":100000642,"tm":1591120235,"cv":"1.0","yv":"1.1","hp":15,"alarm":{"
-    v0":0,"v1":0}}
 
 
 
-   var h_j_object ={\"succes\":\"1001\",\"tm\":\"1631045596\",\"cv\":\"100000642\", \"yv\":\"1631045596\",\"hp\":\"1631045596\",\"alarm\":\"{"
-   v0":0,"v1":0}\"};(Assumed value, for the sake of the expirement)
+//================================================
+// Structure to store values comes from a sensor
+ struct Sensor_Values {
+   int succes;
+   int   tm;
+   int   cv;
+   int   yv;
+   int   hp;
+   int   v0;
+   int   v1;
+ } ;  
+ //================================================
 
-   var t_j_object ={\"succes\":\"1021\",\"tm\":\"1631045596\",\"cv\":\"100000642\", \"yv\":\"1631045596\",\"hp\":\"1631045596\",\"alarm\":\"{"
-   v0":0,"v1":0}\"};(Assumed value, for the sake of the expirement)
+
+struct Sensor_Values Humidity;
+struct Sensor_Values Tempreture;
+//================================================
+// Fiziksel olarak microcontrolere bağlancak olan nem sensorunden gelecek değerleri, oluşturduğumuz structure instance'te saklıyoruz.
+// Sensorlerin şuanda fiziksel olarak bağlı olmadan deney amaçlı direkt rakam olarak veriyoruz.
+//=================================
+// Assigning values coming from the humidity sensor
+Humidity.succes = 1001;
+Humidity.tm = 1631045596
+Humidity.cv = 100000642;
+Humidity.yv = 1631045596;
+Humidity.hp = 1631045596;
+Humidity.v0 = 0
+Humidity.v1 = 0
+//================================
+// Assigning values coming from the tempreture sensor
+Tempreture.succes = 1021;
+Tempreture.tm = 1631045596
+Tempreture.cv = 100000642;
+Tempreture.yv = 1631045596;
+Tempreture.hp = 1631045596;
+Tempreture.v0 = 0
+Tempreture.v1 = 0
+
+
+//================================
+// Creating Json Object
+   var h_j_object ={"succes":Humidity.succes,"tm":Humidity.tm,"cv":Humidity.cv, "yv":Humidity.yv,"hp":Humidity.hp,"alarm":"{"
+   v0":Humidity.v0,"v1":Humidity.v1}"};(Assumed value, for the sake of the expirement)
+   
+
+   var t_j_object ={"succes":Tempreture.succes,"tm":Tempreture.tm,"cv":Tempreture.cv, "yv":Tempreture.yv,"hp":Tempreture.hp,"alarm":"{"
+   v0":Tempreture.v0,"v1":Tempreture.v1}"};(Assumed value, for the sake of the expirement)
+   
+//==================================================
 
 
    // Convert JSON to string
