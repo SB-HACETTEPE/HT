@@ -6,39 +6,72 @@
 #define TFT_MISO 10
 #define TFT_LED  A2  
 // IP Settings
-#define IP      "192.168.137.120"
-#define GATEWAY "192.168.5.1"
-#define NETMASK "255.255.255.0"
 #define PORT    1900
+static byte mymac[] = { 0x74, 0x69, 0x69, 0x2D, 0x30, 0x31 };
+static byte myip[] = { 192, 168, 5, 1 };
+byte Ethernet::buffer[500];
+BufferFiller bfill;
+
 //==============================================================================
 
-char const webpage[] = "<html>
-<body>
-<h1>Giriş yapmak için lütfen Kullancı adı ve şifreyi girin</h1>
 
-<form action="/action_page.php" method="post" target="_blank">
-  <label for="fname">Username:</label>
-  <input type="text" id="fname" name="fname"><br><br>
-  <label for="lname">Password:</label>
-  <input type="text" id="lname" name="lname"><br><br>
-  <input type="submit" value="Giriş Yap">
-</form>
+static word HomePage(word useRed)
+{
+  bfill = ether.tcpOffset();
+  bfill.emit_p(PSTR(
+                 "HTTP/1.0 200 OK\r\n"
+                 "Content-Type: text/html\r\n"
+                 "Pragma: no-cache\r\n"
+                 "\r\n"
+                  "<head>"
+                  "<style>"
+                  "body {background-color:lightgray}"
+                  "h1   {color:$S}"
+                  "</style>"
+                  "<title>Hello!</title>"
+                 "<h1>Giriş yapmak için lütfen Kullancı adı ve şifreyi girin</h1>"), useRed ? "red" : "blue");
+		"<form action="/action_page.php" method="post" target="_blank">
+		 <label for="fname">Username:</label>
+		 <input type="text" id="fname" name="fname"><br><br>
+		 <label for="lname">Password:</label>
+		 <input type="text" id="lname" name="lname"><br><br>
+		 <input type="submit" value="Giriş Yap">
+                  </form>"
+  return bfill.position();
+}
 
-</body>
-</html>
-"
+
+
+
+
+
+
+
+
+
 //==============================================================================
 void setup() {
   //Initialize serial and wait for port to open:
-  net.set_network(IP, NETMASK, GATEWAY);
-  net.connect();
-  server.open(&net);
-  server.bind(PORT);
-  server.listen(4);
-  // init GPIOs
+
+  
+ 
+   if (ether.begin(sizeof Ethernet::buffer, mymac) == 0)
+  {
+    Serial.println("Failed to access Ethernet controller");
+  }
+   ether.staticSetup(myip);
+   ether.hisport = 8080;
+
+
+
+
+
+
+
+
+
+
   pinMode(TFT_LED, OUTPUT); // define as output for backlight control
-  // Setup Eathernet module 
-  ethernet.setup(mac, ip, port);
   // initialize the TFT
   Serial.println("Init TFT ...");
   tft.begin();          
@@ -66,18 +99,54 @@ void loop() {
    
    HTTPClient http;
     
-   // Your Domain name with URL path or IP address with path
-   http.begin(client, serverName);
-
-   // Specify content-type header
-   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-   // Data to send with HTTP POST
-   String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&value1=24.25&value2=49.54&value3=1005.14";           
+   word len = ether.packetReceive();
+   word pos = ether.packetLoop(len);
+   if (pos)  // check if valid tcp data is received
+   {
+      bfill = ether.tcpOffset();
+      char* data = (char*) Ethernet::buffer + pos;
+      if (strncmp("GET /", data, 5) != 0)
+      {
+        bfill.emit_p(HttpNotFound);
+      }
+      else
+      {
+        data += 5;
+        if (strncmp("?red", data, 4) == 0) 
+        {
+          HomePage(1);
+        }
+        else 
+        {
+          HomePage(0);
+        }
+      }
+      ether.httpServerReply(bfill.position());    // send http response
+    }          
    // Send HTTP POST request
    int httpResponseCode = http.POST(httpRequestData);    
    // If you need an HTTP request with a content type: application/json, use the following:
    http.addHeader("Content-Type", "application/json");
-   var jobject ={\"succes\":\"1001\",\"tm\":\"1631045596\",\"cno\":\"100000642\"};
+
+  // Structure to store values comes from a sensor
+   struct Device_ID {
+   int succes;
+   int   tm;
+   int   cno;
+    } ;  
+
+
+   struct Device_ID Device_ID_jobject;
+  //------------------------------------------
+  // Information that is supposed to come from correspondent response(Stored staticly for the sake of the example)
+  Device_ID.succes = 00000642;
+  Device_ID.tm = 1631045596;
+  Device_ID.cno = 1001;
+  //------------------------------------------
+
+   var Device_ID_jobject ={\"succes\": Device_ID.succes ,\"tm\":Device_ID.tm,\"cno\":\Device_ID.cno};
+
+
    // Convert JSON to string
    var JSONString=JSON.stringify(jobject); 
    // Post to the server
